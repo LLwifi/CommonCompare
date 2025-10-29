@@ -163,69 +163,222 @@ public:
 	FText CompareFloat_Any_FailText;
 };
 
-/*被对比对照结构体
+/*被对比/对照通用信息结构体
 * 该结构体将常见的比较情况进行了汇总
+*/
+USTRUCT(BlueprintType)
+struct COMMONCOMPARE_API FCC_BeCompareCommonInfo : public FTableRowBase
+{
+	GENERATED_BODY()
+public:
+	//判断是否反转返回
+	bool IsInvertReturn(bool IsInvert, bool CompareResult);
+	bool CompareResult(FCC_CompareInfo& OuterCompareInfo, FText& FailText);
+public:
+	/*对照Tag
+		* 这里配置的Tag外部需要全部匹配，且Tag需要完全/精准匹配
+		*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FGameplayTagContainer CompareTag_AllExact;
+	//是否反转这个判断
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool CompareTag_AllExact_IsInvert = false;
+
+	/*对照Tag
+	* 这里配置的Tag外部只用满足任意一个即可，且Tag需要完全/精准匹配
+	*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FGameplayTagContainer CompareTag_AnyExact;
+	//是否反转这个判断
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool CompareTag_AnyExact_IsInvert = false;
+
+	/*对照Tag
+	* 这里配置的Tag外部需要全部匹配，Tag包含父类即可
+	*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FGameplayTagContainer CompareTag_All;
+	//是否反转这个判断
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool CompareTag_All_IsInvert = false;
+
+	/*对照Tag
+	* 这里配置的Tag外部只用满足任意一个即可，Tag包含父类即可
+	*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FGameplayTagContainer CompareTag_Any;
+	//是否反转这个判断
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool CompareTag_Any_IsInvert = false;
+
+	/*对照Class 这里配置的class外部需要全部匹配，class必须完全匹配
+	* 例如判断持有的道具是否是某个Class的子类
+	*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<TSoftClassPtr<UObject>> CompareClass_All;
+	//是否反转这个判断
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool CompareClass_All_IsInvert = false;
+	/*对照Class 这里配置的class外部只用满足任意一个即可，class必须完全匹配
+	* 例如判断持有的道具是否是某个Class的子类
+	*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<TSoftClassPtr<UObject>> CompareClass_Any;
+	//是否反转这个判断
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool CompareClass_Any_IsInvert = false;
+	/*对照Class 这里配置的class外部需要全部匹配，class的判断包含子类
+	* 例如判断持有的道具是否是某个Class的子类
+	*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<TSoftClassPtr<UObject>> CompareClass_AllChild;
+	//是否反转这个判断
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool CompareClass_AllChild_IsInvert = false;
+	/*对照Class 这里配置的class外部只用满足任意一个即可，class的判断包含子类
+	* 例如判断持有的道具是否是某个Class的子类
+	*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<TSoftClassPtr<UObject>> CompareClass_AnyChild;
+	//是否反转这个判断
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool CompareClass_AnyChild_IsInvert = false;
+
+	/*对照字符比对
+	* 某些不至于使用UObject但是Class不足以判断内容时，可以选择使用该内容进行判断
+	* 例如：目标是否携带某种状态也可以通过定于该值进行判断：例如用Fire代表燃烧；Ice代表冰冻
+	* 这里的配置外部需要全部匹配
+	*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<FString> CompareString_All;
+	//是否反转这个判断
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool CompareString_All_IsInvert = false;
+	/*对照字符比对
+	* 某些不至于使用UObject但是Class不足以判断内容时，可以选择使用该内容进行判断
+	* 例如：目标是否携带某种状态也可以通过定于该值进行判断：例如用Fire代表燃烧；Ice代表冰冻
+	* 这里的配置外部只用满足任意一个即可
+	*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<FString> CompareString_Any;
+	//是否反转这个判断
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool CompareString_Any_IsInvert = false;
+
+	/*数值对比
+	* 这里的配置外部需要全部匹配
+	*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FFloatRange CompareFloat_All;
+	//是否反转这个判断
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool CompareFloat_All_IsInvert = false;
+	/*数值对比
+	* 这里的配置外部只用满足任意一个即可
+	*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<FFloatRange> CompareFloat_Any;
+	//是否反转这个判断
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool CompareFloat_Any_IsInvert = false;
+
+	/*对比失败的文本
+	*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FCC_CompareFailText CompareFailText;
+};
+
+/*被对比对照结构体
 */
 USTRUCT(BlueprintType)
 struct COMMONCOMPARE_API FCC_BeCompareInfo : public FTableRowBase
 {
 	GENERATED_BODY()
 public:
+	//判断是否反转返回
+	bool IsInvertReturn(bool IsInvert, bool CompareResult);
 	bool CompareResult(FCC_CompareInfo& OuterCompareInfo, FText& FailText);
 
 public:
 	//比对方式是否使用外部比对类
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool IsUseOuterCompareClass = false;
-
 	//外部对照类
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditConditionHides, EditCondition = "IsUseOuterCompareClass"))
 	TSoftClassPtr<UCC_CompareBase> OuterCompareClass;
 
+	//后续新开时使用这个
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (Categories = "Compare"), meta = (EditConditionHides, EditCondition = "!IsUseOuterCompareClass"))
+	//FCC_BeCompareCommonInfo BeCompareCommonInfo;
+
 	/*对照Tag
 	* 这里配置的Tag外部需要全部匹配，且Tag需要完全/精准匹配
 	*/
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (Categories = "Compare"), meta = (EditConditionHides, EditCondition = "!IsUseOuterCompareClass"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditConditionHides, EditCondition = "!IsUseOuterCompareClass"))
 	FGameplayTagContainer CompareTag_AllExact;
+	//是否反转这个判断
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditConditionHides, EditCondition = "!IsUseOuterCompareClass"))
+	bool CompareTag_AllExact_IsInvert = false;
 
 	/*对照Tag
 	* 这里配置的Tag外部只用满足任意一个即可，且Tag需要完全/精准匹配
 	*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (Categories = "Compare"), meta = (EditConditionHides, EditCondition = "!IsUseOuterCompareClass"))
 	FGameplayTagContainer CompareTag_AnyExact;
+	//是否反转这个判断
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditConditionHides, EditCondition = "!IsUseOuterCompareClass"))
+	bool CompareTag_AnyExact_IsInvert = false;
 
 	/*对照Tag
 	* 这里配置的Tag外部需要全部匹配，Tag包含父类即可
 	*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (Categories = "Compare"), meta = (EditConditionHides, EditCondition = "!IsUseOuterCompareClass"))
 	FGameplayTagContainer CompareTag_All;
+	//是否反转这个判断
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditConditionHides, EditCondition = "!IsUseOuterCompareClass"))
+	bool CompareTag_All_IsInvert = false;
 
 	/*对照Tag
 	* 这里配置的Tag外部只用满足任意一个即可，Tag包含父类即可
 	*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (Categories = "Compare"), meta = (EditConditionHides, EditCondition = "!IsUseOuterCompareClass"))
 	FGameplayTagContainer CompareTag_Any;
+	//是否反转这个判断
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditConditionHides, EditCondition = "!IsUseOuterCompareClass"))
+	bool CompareTag_Any_IsInvert = false;
 
 	/*对照Class 这里配置的class外部需要全部匹配，class必须完全匹配
 	* 例如判断持有的道具是否是某个Class的子类
 	*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditConditionHides, EditCondition = "!IsUseOuterCompareClass"))
 	TArray<TSoftClassPtr<UObject>> CompareClass_All;
+	//是否反转这个判断
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditConditionHides, EditCondition = "!IsUseOuterCompareClass"))
+	bool CompareClass_All_IsInvert = false;
 	/*对照Class 这里配置的class外部只用满足任意一个即可，class必须完全匹配
 	* 例如判断持有的道具是否是某个Class的子类
 	*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditConditionHides, EditCondition = "!IsUseOuterCompareClass"))
 	TArray<TSoftClassPtr<UObject>> CompareClass_Any;
+	//是否反转这个判断
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditConditionHides, EditCondition = "!IsUseOuterCompareClass"))
+	bool CompareClass_Any_IsInvert = false;
 	/*对照Class 这里配置的class外部需要全部匹配，class的判断包含子类
 	* 例如判断持有的道具是否是某个Class的子类
 	*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditConditionHides, EditCondition = "!IsUseOuterCompareClass"))
 	TArray<TSoftClassPtr<UObject>> CompareClass_AllChild;
+	//是否反转这个判断
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditConditionHides, EditCondition = "!IsUseOuterCompareClass"))
+	bool CompareClass_AllChild_IsInvert = false;
 	/*对照Class 这里配置的class外部只用满足任意一个即可，class的判断包含子类
 	* 例如判断持有的道具是否是某个Class的子类
 	*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditConditionHides, EditCondition = "!IsUseOuterCompareClass"))
 	TArray<TSoftClassPtr<UObject>> CompareClass_AnyChild;
+	//是否反转这个判断
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditConditionHides, EditCondition = "!IsUseOuterCompareClass"))
+	bool CompareClass_AnyChild_IsInvert = false;
 
 	/*对照字符比对
 	* 某些不至于使用UObject但是Class不足以判断内容时，可以选择使用该内容进行判断
@@ -234,6 +387,9 @@ public:
 	*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditConditionHides, EditCondition = "!IsUseOuterCompareClass"))
 	TArray<FString> CompareString_All;
+	//是否反转这个判断
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditConditionHides, EditCondition = "!IsUseOuterCompareClass"))
+	bool CompareString_All_IsInvert = false;
 	/*对照字符比对
 	* 某些不至于使用UObject但是Class不足以判断内容时，可以选择使用该内容进行判断
 	* 例如：目标是否携带某种状态也可以通过定于该值进行判断：例如用Fire代表燃烧；Ice代表冰冻
@@ -241,20 +397,29 @@ public:
 	*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditConditionHides, EditCondition = "!IsUseOuterCompareClass"))
 	TArray<FString> CompareString_Any;
+	//是否反转这个判断
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditConditionHides, EditCondition = "!IsUseOuterCompareClass"))
+	bool CompareString_Any_IsInvert = false;
 
 	/*数值对比
 	* 这里的配置外部需要全部匹配
 	*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditConditionHides, EditCondition = "!IsUseOuterCompareClass"))
 	FFloatRange CompareFloat_All;
+	//是否反转这个判断
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditConditionHides, EditCondition = "!IsUseOuterCompareClass"))
+	bool CompareFloat_All_IsInvert = false;
 	/*数值对比
 	* 这里的配置外部只用满足任意一个即可
 	*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditConditionHides, EditCondition = "!IsUseOuterCompareClass"))
 	TArray<FFloatRange> CompareFloat_Any;
+	//是否反转这个判断
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditConditionHides, EditCondition = "!IsUseOuterCompareClass"))
+	bool CompareFloat_Any_IsInvert = false;
 
 	/*对比失败的文本
 	*/
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditConditionHides, EditCondition = "!IsUseOuterCompareClass"))
 	FCC_CompareFailText CompareFailText;
 };
